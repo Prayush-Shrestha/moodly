@@ -1,0 +1,42 @@
+name: moodly
+description: "Moodly — Your Daily Mood. A calm, local-first daily mood tracking and reflection journal."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Local persistence
+  sqflite: ^2.4.5
+  path: ^1.9.1
+
+  # Preferences
+  shared_preferences: ^2.5.6
+
+  # UI / analytics
+  table_calendar: ^3.3.0
+  fl_chart: ^1.3.0
+  intl: ^0.20.3
+
+  # Export
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Lets tests run real SQLite databases on desktop CI (Windows/macOS/Linux).
+  sqflite_common_ffi: ^2.4.5
+
+flutter:
+  uses-material-design: true
