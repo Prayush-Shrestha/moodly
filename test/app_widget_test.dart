@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:moodly/app.dart';
 import 'package:moodly/core/database/app_database.dart';
 import 'package:moodly/models/mood.dart';
+import 'package:moodly/repositories/journal_repository.dart';
 import 'package:moodly/repositories/mood_repository.dart';
 import 'package:moodly/repositories/settings_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,5 +167,67 @@ void main() {
     await tapAndSettle(tester, find.text('Clear all data'));
     await tapAndSettle(tester, find.text('Delete everything'));
     expect(await repository.count(), 0);
+  });
+
+  testWidgets('journal flow allows creating, viewing and searching entries', (
+    tester,
+  ) async {
+    final database = await pumpApp(tester);
+    final journalRepo = JournalRepository(database);
+
+    await tapAndSettle(tester, find.text('Journal'));
+    expect(find.text('Your journal is empty'), findsOneWidget);
+
+    await tapAndSettle(tester, find.text('New entry'));
+    expect(find.text('Title (optional)'), findsOneWidget);
+
+    await tapAndSettle(tester, find.text('Save entry'));
+    expect(find.text('Write something before saving.'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Title (optional)'),
+      'My Peaceful Morning',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'What is on your mind?'),
+      'Had a calm tea and reflected on priorities.',
+    );
+    await tapAndSettle(tester, find.text('Save entry'));
+
+    expect(find.text('My Peaceful Morning'), findsOneWidget);
+    expect(await journalRepo.count(), 1);
+
+    final searchField = find.widgetWithText(TextField, 'Search your entries…');
+    await tester.enterText(searchField, 'Peaceful');
+    await settle(tester);
+    expect(find.text('My Peaceful Morning'), findsOneWidget);
+
+    await tester.enterText(searchField, 'NonexistentSearch');
+    await settle(tester);
+    expect(find.text('No matches'), findsOneWidget);
+  });
+
+  testWidgets('calendar tab displays current month and day card', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tapAndSettle(
+      tester,
+      find.widgetWithText(NavigationDestination, 'Calendar'),
+    );
+    expect(find.text('Calendar'), findsWidgets);
+    expect(find.textContaining('Today'), findsWidgets);
+  });
+
+  testWidgets('settings tab allows toggling theme mode', (tester) async {
+    await pumpApp(tester);
+
+    await tapAndSettle(tester, find.text('Settings'));
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Dark'), findsOneWidget);
+
+    await tapAndSettle(tester, find.text('Dark'));
+    expect(find.text('Dark'), findsOneWidget);
   });
 }

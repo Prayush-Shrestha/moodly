@@ -93,18 +93,20 @@ class CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendar(ThemeData theme) {
-    final today = AppDates.dateOnly(DateTime.now());
     return TableCalendar<MoodEntry>(
       locale: 'en_US',
       firstDay: DateTime(2020, 1, 1),
-      lastDay: today,
-      focusedDay: _focusedDay.isAfter(today) ? today : _focusedDay,
+      lastDay: DateTime(2035, 12, 31),
+      focusedDay: _focusedDay,
       selectedDayPredicate: (day) => AppDates.isSameDay(day, _selectedDay),
       onDaySelected: (selectedDay, focusedDay) {
         setState(() {
           _selectedDay = AppDates.dateOnly(selectedDay);
           _focusedDay = AppDates.dateOnly(focusedDay);
         });
+      },
+      onPageChanged: (focusedDay) {
+        setState(() => _focusedDay = AppDates.dateOnly(focusedDay));
       },
       eventLoader: (day) {
         final entry = _byDate[AppDates.dateKey(day)];
@@ -165,6 +167,46 @@ class CalendarScreenState extends State<CalendarScreen> {
                 : entry.mood.color,
           ),
         ),
+        selectedBuilder: (context, day, _) {
+          return Container(
+            margin: const EdgeInsets.all(5),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primary,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '${day.day}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        },
+        todayBuilder: (context, day, _) {
+          final entry = _byDate[AppDates.dateKey(day)];
+          final isSelected = AppDates.isSameDay(day, _selectedDay);
+          if (isSelected) return null;
+          return Container(
+            margin: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: entry != null
+                  ? entry.mood.tint
+                  : AppColors.primary.withValues(alpha: 0.10),
+              border: Border.all(color: AppColors.primary, width: 1.6),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '${day.day}',
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        },
         // Show a faint tint on days with an entry so the month reads at a glance.
         defaultBuilder: (context, day, _) {
           final entry = _byDate[AppDates.dateKey(day)];

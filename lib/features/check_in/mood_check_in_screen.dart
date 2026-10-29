@@ -88,6 +88,12 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
       );
       return;
     }
+    if (AppDates.isFuture(_date)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot check in for future dates.')),
+      );
+      return;
+    }
     setState(() => _saving = true);
     try {
       final repository = AppServices.of(context).moodRepository;

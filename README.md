@@ -190,9 +190,12 @@ The suite covers:
 - **Statistics & empty-data analytics** (`test/stats_service_test.dart`) —
   counts, averages, top emotions, period filters, trend detection, and
   empty-input handling.
+- **Data export to JSON** (`test/export_service_test.dart`) —
+  payload schema versioning, ISO-8601 formatting, metadata and entry serialization.
 - **End-to-end widget flows** (`test/app_widget_test.dart`) — first-launch empty
   state, the full check-in flow persisting exactly one entry, edit-instead-of-
-  duplicate, insights empty state, and confirmed clear-all-data.
+  duplicate, insights empty state, confirmed clear-all-data, journal creation &
+  search, calendar navigation, and theme mode toggling.
 
 Tests use `sqflite_common_ffi` (in-memory and temp-file databases) so they run
 on desktop without a device.
@@ -248,6 +251,7 @@ test/
 ├── mood_repository_test.dart
 ├── journal_repository_test.dart
 ├── stats_service_test.dart
+├── export_service_test.dart
 └── app_widget_test.dart
 ```
 

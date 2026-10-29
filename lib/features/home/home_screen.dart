@@ -7,6 +7,7 @@ import '../../core/utils/date_utils.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/mood_entry.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/logo_mark.dart';
 import '../../widgets/mood_display.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_views.dart';
@@ -131,6 +132,8 @@ class HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+        const SizedBox(width: 12),
+        const LogoMark(size: 40),
       ],
     );
   }

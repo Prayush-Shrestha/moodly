@@ -114,6 +114,8 @@ class InsightsScreenState extends State<InsightsScreen> {
                     AnimatedSection(child: _buildTrendCard(theme)),
                     const SizedBox(height: 14),
                     AnimatedSection(child: _buildEmotionsCard(theme)),
+                    const SizedBox(height: 14),
+                    AnimatedSection(child: _buildReflectionCard(theme)),
                   ],
                 ),
         ),
@@ -187,7 +189,23 @@ class InsightsScreenState extends State<InsightsScreen> {
             child: BarChart(
               BarChartData(
                 maxY: (maxCount + 1).toDouble(),
-                barTouchData: BarTouchData(enabled: false),
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      final mood = Mood.values[group.x.toInt()];
+                      final count = rod.toY.toInt();
+                      return BarTooltipItem(
+                        '${mood.label}\n$count ${count == 1 ? 'entry' : 'entries'}',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 barGroups: [
@@ -359,6 +377,63 @@ class InsightsScreenState extends State<InsightsScreen> {
               ),
               if (item != top.last) const SizedBox(height: 12),
             ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReflectionCard(ThemeData theme) {
+    final stats = _stats;
+    final isFew =
+        stats != null && stats.totalEntries > 0 && stats.totalEntries < 4;
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.spa_rounded,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text('Personal Reflection', style: theme.textTheme.titleMedium),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Moodly is an offline tool designed for mindful self-reflection and personal wellness. '
+            'These insights summarize your recorded entries to help you recognize your personal rhythms and are not medical diagnoses, mental health evaluations, or clinical advice.',
+            style: theme.textTheme.bodySmall,
+          ),
+          if (isFew) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Notice: You have only ${stats.totalEntries} ${stats.totalEntries == 1 ? 'entry' : 'entries'} recorded in this timeframe. Early statistics may not yet reflect meaningful patterns. Patterns become clearer with consistent daily check-ins.',
+                      style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
