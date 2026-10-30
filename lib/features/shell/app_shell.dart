@@ -42,14 +42,19 @@ class _AppShellState extends State<AppShell> {
     switch (index) {
       case 0:
         _homeKey.currentState?.refresh();
+        break;
       case 1:
         _calendarKey.currentState?.refresh();
+        break;
       case 2:
         _journalKey.currentState?.refresh();
+        break;
       case 3:
         _insightsKey.currentState?.refresh();
+        break;
       case 4:
         _settingsKey.currentState?.refresh();
+        break;
     }
   }
 

@@ -136,6 +136,19 @@ SDK's `bin\flutter.bat`, or add the SDK `bin` directory to your `PATH`.
 
 > The Android build uses the Gradle wrapper (`android\gradlew`). The first build
 > downloads Gradle/dependencies and can take a few minutes.
+>
+> **Windows build note:** If the Gradle build fails with "Could not close
+> incremental caches" from the Kotlin compiler (common when the Flutter pub
+> cache lives on a different drive than the project), add this line to
+> `android\gradle.properties` and rebuild:
+>
+> ```properties
+> kotlin.incremental=false
+> ```
+>
+> This disables Kotlin's incremental compilation cache and is the only change
+> needed; the Dart code is unchanged.
+
 
 ---
 
