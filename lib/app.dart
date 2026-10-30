@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'core/database/app_database.dart';
 import 'core/theme/app_theme.dart';
 import 'features/splash/splash_screen.dart';
+import 'repositories/journal_reflection_repository.dart';
 import 'repositories/journal_repository.dart';
 import 'repositories/mood_repository.dart';
 import 'repositories/settings_repository.dart';
+import 'services/ai_service.dart';
 import 'services/export_service.dart';
+import 'services/journal_reflection_service.dart';
 
 /// Root widget. Owns the database/repositories and exposes them to the tree
 /// through [AppServices], which also makes widget tests injectable.
@@ -34,7 +37,9 @@ class _MoodlyAppState extends State<MoodlyApp> {
   late final AppDatabase _database;
   late final MoodRepository _moodRepository;
   late final JournalRepository _journalRepository;
+  late final JournalReflectionRepository _journalReflectionRepository;
   late final ExportService _exportService;
+  late final AiService _aiService;
 
   @override
   void initState() {
@@ -42,10 +47,12 @@ class _MoodlyAppState extends State<MoodlyApp> {
     _database = widget.database ?? AppDatabase();
     _moodRepository = MoodRepository(_database);
     _journalRepository = JournalRepository(_database);
+    _journalReflectionRepository = JournalReflectionRepository(_database);
     _exportService = ExportService(
       moodRepository: _moodRepository,
       journalRepository: _journalRepository,
     );
+    _aiService = LocalAiService(JournalReflectionService());
   }
 
   @override
@@ -54,7 +61,9 @@ class _MoodlyAppState extends State<MoodlyApp> {
       database: _database,
       moodRepository: _moodRepository,
       journalRepository: _journalRepository,
+      journalReflectionRepository: _journalReflectionRepository,
       exportService: _exportService,
+      aiService: _aiService,
       settingsRepository: widget.settingsRepository,
       child: ListenableBuilder(
         listenable: widget.settingsRepository,
@@ -82,7 +91,9 @@ class AppServices extends InheritedWidget {
     required this.database,
     required this.moodRepository,
     required this.journalRepository,
+    required this.journalReflectionRepository,
     required this.exportService,
+    required this.aiService,
     required this.settingsRepository,
     required super.child,
   });
@@ -90,7 +101,9 @@ class AppServices extends InheritedWidget {
   final AppDatabase database;
   final MoodRepository moodRepository;
   final JournalRepository journalRepository;
+  final JournalReflectionRepository journalReflectionRepository;
   final ExportService exportService;
+  final AiService aiService;
   final SettingsRepository settingsRepository;
 
   /// Reads the services without registering a rebuild dependency (the
@@ -108,6 +121,8 @@ class AppServices extends InheritedWidget {
       database != oldWidget.database ||
       moodRepository != oldWidget.moodRepository ||
       journalRepository != oldWidget.journalRepository ||
+      journalReflectionRepository != oldWidget.journalReflectionRepository ||
       exportService != oldWidget.exportService ||
+      aiService != oldWidget.aiService ||
       settingsRepository != oldWidget.settingsRepository;
 }

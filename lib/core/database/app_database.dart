@@ -15,7 +15,7 @@ class AppDatabase {
       _path = dbPath;
 
   static const String name = 'moodly.db';
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   final DatabaseFactory _factory;
   final String? _path;
@@ -34,13 +34,14 @@ class AppDatabase {
         // hand every test the previous test's database.
         singleInstance: _path == null,
         onCreate: _createSchema,
+        onUpgrade: _upgradeSchema,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       ),
     );
   }
 
-  /// Idempotent schema creation. Future schema changes go through [onUpgrade]
-  /// below with sequential, versioned migrations.
+  /// Idempotent schema creation. When a fresh database is created at version 2
+  /// all tables (including Phase 2 tables) are created here.
   static Future<void> _createSchema(Database db, int version) async {
     await db.execute('''
       CREATE TABLE mood_entries (
@@ -66,6 +67,44 @@ class AppDatabase {
     ''');
     await db.execute(
       'CREATE INDEX idx_journal_entries_date ON journal_entries (date DESC)',
+    );
+
+    if (version >= 2) {
+      await _createJournalReflectionsTable(db);
+    }
+  }
+
+  /// Versioned migration. Adds Phase 2 tables to an existing v1 database.
+  ///
+  /// Existing mood_entries and journal_entries rows are preserved.
+  static Future<void> _upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    if (oldVersion < 2 && newVersion >= 2) {
+      await _createJournalReflectionsTable(db);
+    }
+  }
+
+  static Future<void> _createJournalReflectionsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE journal_reflections (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        journal_entry_id INTEGER NOT NULL,
+        summary TEXT NOT NULL,
+        detected_emotions TEXT NOT NULL DEFAULT '',
+        themes TEXT NOT NULL DEFAULT '',
+        reflection_questions TEXT NOT NULL DEFAULT '',
+        is_rule_based INTEGER NOT NULL DEFAULT 1,
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (journal_entry_id) REFERENCES journal_entries(id)
+          ON DELETE CASCADE
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX idx_journal_reflections_entry_id ON journal_reflections '
+      '(journal_entry_id)',
     );
   }
 

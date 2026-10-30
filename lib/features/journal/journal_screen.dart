@@ -6,6 +6,7 @@ import '../../models/journal_entry.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/status_views.dart';
 import 'journal_editor_screen.dart';
+import 'journal_reflection_screen.dart';
 
 /// Journal tab: searchable list of standalone entries with create/edit/delete.
 class JournalScreen extends StatefulWidget {
@@ -256,6 +257,20 @@ class JournalDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Entry'),
         actions: [
+          IconButton(
+            tooltip: 'Reflect on this entry',
+            icon: const Icon(Icons.psychology_rounded),
+            onPressed: () async {
+              final navigated = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => JournalReflectionScreen(entry: entry),
+                ),
+              );
+              if (navigated == true && context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+          ),
           IconButton(
             tooltip: 'Edit',
             icon: const Icon(Icons.edit_outlined),

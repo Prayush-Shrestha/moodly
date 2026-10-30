@@ -59,6 +59,64 @@ editing instead of creating a duplicate.
 
 ---
 
+## Phase 2: AI-Powered Mood Intelligence
+
+Phase 2 transforms Moodly from a simple tracker into an intelligent personal
+mood-insights application. All new intelligence is **local and rule-based**:
+nothing is invented, nothing is a medical diagnosis, and no journal or mood
+data leaves the device.
+
+### New Phase 2 features
+
+- **AI Insights screen** — personalized insight cards computed from your real
+  saved entries: mood distribution, average energy, emotion patterns, check-in
+  consistency, streaks, and weekly/monthly summaries. Each insight shows the
+  data it is based on and a qualitative confidence level.
+- **Mood trends** — mood trend chart and energy trend chart (fl_chart) with
+  tooltips, plus emotion frequency charts. Weekly / monthly / all-time filters.
+- **Journal reflection** — from a journal entry detail, tap "Reflect on this
+  entry" to get a local rule-based reflection: a summary, emotions detected in
+  your words, themes, and suggested reflection questions. Reflections are
+  optional, stored locally, and clearly labeled as rule-based (they may be
+  inaccurate and are not medical advice).
+- **Home enhancements** — current check-in streak, weekly mood overview, one
+  surface insight, and quick access to AI Insights.
+- **AI integration architecture** — an `AiService` abstraction with a
+  `LocalAiService` (offline, rule-based) and a `RemoteAiService` stub for a
+  future provider. No API keys are stored in source code, and no data is sent
+  externally without explicit consent.
+
+### Mood analysis methodology
+
+All analysis uses simple, explainable statistics over your own SQLite data:
+
+- **MoodAnalyticsService** — totals, dominant mood, average mood & energy,
+  average energy by mood, mood / emotion distributions.
+- **MoodPatternService** — rule-based patterns such as "Good or Great on X of
+  the last 7 days," "energy higher on Motivated days," streaks, and missing
+  days.
+- **InsightGenerationService** — turns patterns into displayable insight cards;
+  empty or sparse datasets produce a helpful message instead of invented
+  conclusions.
+
+Rule-based insights are **not machine learning** and are never presented as
+clinical conclusions. Moodly does not diagnose depression, anxiety, or any
+medical condition.
+
+### Privacy and data handling
+
+- Local SQLite storage is **not encrypted by default** (see the Phase 1 storage
+  note). Generated reflections are stored in a new `journal_reflections` table
+  linked to journal entries; deleting a journal entry cascades and removes its
+  reflection.
+- "Clear all data" also removes generated reflections and insights data.
+- No API keys in source code. No automatic upload of journal entries.
+- Reflections are generated locally and labeled rule-based. A future remote AI
+  provider would require explicit user consent before any data leaves the
+  device.
+
+---
+
 ## Screenshots
 
 > Placeholder images — drop real captures in `docs/screenshots/` and reference
@@ -209,6 +267,18 @@ The suite covers:
   state, the full check-in flow persisting exactly one entry, edit-instead-of-
   duplicate, insights empty state, confirmed clear-all-data, journal creation &
   search, calendar navigation, and theme mode toggling.
+- **Phase 2 mood analysis** (`test/mood_analytics_service_test.dart`) — counts,
+  averages, dominant mood, streaks, missing days, date filtering.
+- **Phase 2 pattern detection** (`test/mood_pattern_service_test.dart`) —
+  consistency, dominant mood, energy-motivation link, tense emotions, streaks.
+- **Phase 2 insight generation** (`test/insight_generation_service_test.dart`) —
+  card generation from patterns, empty-data handling, starter insight.
+- **Phase 2 journal reflection** (`test/journal_reflection_service_test.dart`) —
+  rule-based reflection, emotion/theme detection, reflection questions.
+- **Phase 2 reflection repository** (`test/journal_reflection_repository_test.dart`) —
+  CRUD, upsert, cascade delete, persistence across reopen.
+- **Phase 2 database migration** (`test/database_migration_test.dart`) —
+  `journal_reflections` table creation and foreign-key cascade.
 
 Tests use `sqflite_common_ffi` (in-memory and temp-file databases) so they run
 on desktop without a device.
@@ -301,6 +371,19 @@ and versioned so future migrations can run in `onUpgrade`.
 | `created_at` | INTEGER | UTC epoch milliseconds                |
 | `updated_at` | INTEGER | UTC epoch milliseconds                |
 
+### `journal_reflections` (Phase 2)
+
+| Column                | Type    | Notes                                                                |
+| --------------------- | ------- | -------------------------------------------------------------------- |
+| `id`                  | INTEGER | Primary key, autoincrement                                           |
+| `journal_entry_id`    | INTEGER | References `journal_entries(id)`, `ON DELETE CASCADE`                |
+| `summary`             | TEXT    | Rule-based summary of the entry                                      |
+| `detected_emotions`   | TEXT    | Comma-separated emotion labels detected in the text                  |
+| `themes`              | TEXT    | Comma-separated themes (e.g. `challenging`, `positive`)              |
+| `reflection_questions`| TEXT    | Comma-separated suggested reflection questions                       |
+| `is_rule_based`       | INTEGER | 1 when produced by the local rule-based service                      |
+| `created_at`          | INTEGER | UTC epoch milliseconds                                               |
+
 **Local dates:** entries are keyed by the device's local calendar day
 (`yyyy-MM-dd`) so "today" always matches what the user sees. Timestamps are
 stored in UTC for durability; date comparisons happen on the normalized
@@ -360,8 +443,20 @@ confirmation and refreshes the UI immediately.
 
 ---
 
-## Known limitations
+## Phase 3 roadmap (not implemented)
 
+Possible future enhancements, out of scope for Phase 2:
+
+- **Optional remote AI** — a consent-gated AI provider behind the `AiService`
+  abstraction, with explicit opt-in before any journal text leaves the device.
+- **Encrypted local storage** — SQLCipher or similar for data at rest.
+- **Reminders & streaks** — local notifications to encourage daily check-ins.
+- **Richer analytics** — mood by weekday/hour, emotion correlations, custom
+  date ranges, CSV/PDF reports.
+- **Cloud sync** — opt-in, end-to-end-encrypted backup across devices.
+- **Widgets & companions** — home-screen widgets and watch companions.
+
+## Known limitations
 - **English-only UI.** `flutter_localizations` is not included in Phase 1;
   date symbols are initialized for English.
 - **Local-only, not encrypted.** No cloud sync, no accounts, no encryption at
