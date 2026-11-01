@@ -13,8 +13,17 @@ enum Mood {
     5,
     MoodColors.great,
     Icons.wb_sunny_rounded,
+    '😄',
   ),
-  good('good', 'Good', 'Pretty well', 4, MoodColors.good, Icons.mood_rounded),
+  good(
+    'good',
+    'Good',
+    'Pretty well',
+    4,
+    MoodColors.good,
+    Icons.mood_rounded,
+    '😊',
+  ),
   okay(
     'okay',
     'Okay',
@@ -22,6 +31,7 @@ enum Mood {
     3,
     MoodColors.okay,
     Icons.sentiment_neutral_rounded,
+    '😐',
   ),
   low(
     'low',
@@ -30,6 +40,7 @@ enum Mood {
     2,
     MoodColors.low,
     Icons.sentiment_dissatisfied_rounded,
+    '😢',
   ),
   terrible(
     'terrible',
@@ -38,6 +49,7 @@ enum Mood {
     1,
     MoodColors.terrible,
     Icons.sentiment_very_dissatisfied_rounded,
+    '😭',
   );
 
   const Mood(
@@ -47,6 +59,7 @@ enum Mood {
     this.score,
     this.color,
     this.icon,
+    this.emoji,
   );
 
   /// Stable identifier persisted in the database.
@@ -58,6 +71,10 @@ enum Mood {
   final int score;
   final Color color;
   final IconData icon;
+
+  /// Compact emoji shown with the date inside calendar day circles. It is
+  /// derived from the persisted mood, so edits and restarts stay in sync.
+  final String emoji;
 
   /// Gentle tint used for selected tiles/chips while keeping text readable.
   Color get tint => color.withValues(alpha: 0.12);

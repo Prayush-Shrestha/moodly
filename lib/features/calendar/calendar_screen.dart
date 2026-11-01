@@ -10,6 +10,7 @@ import '../../widgets/app_card.dart';
 import '../../widgets/mood_display.dart';
 import '../../widgets/status_views.dart';
 import '../check_in/mood_check_in_screen.dart';
+import 'mood_day_cell.dart';
 
 /// Month view with mood indicators; selecting a day shows its entry and
 /// allows editing or creating a check-in for that day.
@@ -105,10 +106,6 @@ class CalendarScreenState extends State<CalendarScreen> {
       onPageChanged: (focusedDay) {
         setState(() => _focusedDay = AppDates.dateOnly(focusedDay));
       },
-      eventLoader: (day) {
-        final entry = _byDate[AppDates.dateKey(day)];
-        return entry == null ? const [] : [entry];
-      },
       calendarFormat: CalendarFormat.month,
       availableCalendarFormats: const {CalendarFormat.month: 'Month'},
       startingDayOfWeek: StartingDayOfWeek.monday,
@@ -163,81 +160,31 @@ class CalendarScreenState extends State<CalendarScreen> {
         cellMargin: const EdgeInsets.all(6),
       ),
       calendarBuilders: CalendarBuilders<MoodEntry>(
-        singleMarkerBuilder: (context, day, entry) => Container(
-          width: 6,
-          height: 6,
-          margin: const EdgeInsets.symmetric(horizontal: 1),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppDates.isSameDay(day, _selectedDay)
-                ? Colors.white
-                : entry.mood.color,
-          ),
-        ),
-        selectedBuilder: (context, day, _) {
-          return Container(
-            margin: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primary,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '${day.day}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          );
-        },
+        selectedBuilder: (context, day, _) =>
+            _buildDayCell(day, selected: true),
         todayBuilder: (context, day, _) {
-          final entry = _byDate[AppDates.dateKey(day)];
-          final isSelected = AppDates.isSameDay(day, _selectedDay);
-          if (isSelected) return null;
-          return Container(
-            margin: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: entry != null
-                  ? entry.mood.tint
-                  : AppColors.primary.withValues(alpha: 0.10),
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.35),
-                width: 1.5,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '${day.day}',
-              style: TextStyle(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          );
+          if (AppDates.isSameDay(day, _selectedDay)) return null;
+          return _buildDayCell(day, today: true);
         },
-        // Show a faint tint on days with an entry so the month reads at a glance.
-        defaultBuilder: (context, day, _) {
-          final entry = _byDate[AppDates.dateKey(day)];
-          if (entry == null) return null;
-          return Container(
-            margin: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: entry.mood.tint,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '${day.day}',
-              style: TextStyle(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          );
-        },
+        // Every normal day uses the same cell so the date number always
+        // remains visible. Mood days add the emoji inside the same circle.
+        defaultBuilder: (context, day, _) => _buildDayCell(day),
       ),
+    );
+  }
+
+  Widget _buildDayCell(
+    DateTime day, {
+    bool selected = false,
+    bool today = false,
+  }) {
+    final entry = _byDate[AppDates.dateKey(day)];
+    return MoodDayCell(
+      key: ValueKey('calendar-day-${AppDates.dateKey(day)}'),
+      day: day,
+      mood: entry?.mood,
+      isSelected: selected,
+      isToday: today,
     );
   }
 
