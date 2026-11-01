@@ -5,59 +5,73 @@ import 'app_colors.dart';
 /// Material 3 themes for Moodly (light and dark).
 ///
 /// The design system favors rounded shapes, generous spacing, subtle borders
-/// and soft shadows to keep the app calm and premium.
+/// and soft shadows to keep the app calm and premium. All colors come from
+/// [AppColors] so the design system stays consistent across screens and both
+/// themes.
 abstract final class AppTheme {
   static const String _fontFamily = 'Roboto';
+
+  /// Corner radius applied to every card across the app.
+  static const double cardRadius = 20;
 
   static ThemeData light() => _base(
     brightness: Brightness.light,
     background: AppColors.lightBackground,
     surface: AppColors.lightSurface,
-    onSurface: AppColors.bodyText,
-    secondaryOnSurface: AppColors.secondaryText,
+    surfaceTint: AppColors.lightSurfaceTint,
+    onSurface: AppColors.lightPrimaryText,
+    secondaryOnSurface: AppColors.lightSecondaryText,
     cardBorder: AppColors.lightCardBorder,
+    brandPrimary: AppColors.primary,
+    brandSecondary: AppColors.secondary,
+    brandMint: AppColors.mint,
   );
 
   static ThemeData dark() => _base(
     brightness: Brightness.dark,
     background: AppColors.darkBackground,
     surface: AppColors.darkSurface,
-    onSurface: AppColors.darkText,
+    surfaceTint: AppColors.darkSurfaceTint,
+    onSurface: AppColors.darkPrimaryText,
     secondaryOnSurface: AppColors.darkSecondaryText,
     cardBorder: AppColors.darkCardBorder,
+    brandPrimary: AppColors.darkPrimary,
+    brandSecondary: AppColors.darkSecondary,
+    brandMint: AppColors.darkMint,
   );
 
   static ThemeData _base({
     required Brightness brightness,
     required Color background,
     required Color surface,
+    required Color surfaceTint,
     required Color onSurface,
     required Color secondaryOnSurface,
     required Color cardBorder,
+    required Color brandPrimary,
+    required Color brandSecondary,
+    required Color brandMint,
   }) {
+    final bool isLight = brightness == Brightness.light;
+
     final colorScheme = ColorScheme(
       brightness: brightness,
-      primary: AppColors.primary,
+      primary: brandPrimary,
       onPrimary: Colors.white,
-      primaryContainer: brightness == Brightness.light
-          ? AppColors.paleLavender
-          : AppColors.deepPurple,
-      onPrimaryContainer: brightness == Brightness.light
-          ? AppColors.deepPurple
-          : AppColors.paleLavender,
-      secondary: AppColors.mint,
-      onSecondary: AppColors.deepPurple,
-      secondaryContainer: AppColors.mint,
-      onSecondaryContainer: AppColors.deepPurple,
+      primaryContainer: isLight ? AppColors.lightLavender : brandPrimary,
+      onPrimaryContainer: isLight ? brandPrimary : Colors.white,
+      secondary: brandMint,
+      onSecondary: isLight ? const Color(0xFF3A2A6B) : brandPrimary,
+      secondaryContainer: brandMint,
+      onSecondaryContainer: brandPrimary,
       surface: surface,
       onSurface: onSurface,
-      surfaceContainerHighest: brightness == Brightness.light
-          ? const Color(0xFFF1EDFC)
-          : const Color(0xFF2A2340),
+      surfaceContainerHighest: surfaceTint,
       error: AppColors.danger,
       onError: Colors.white,
       outline: cardBorder,
       outlineVariant: cardBorder,
+      surfaceContainer: surface,
     );
 
     final textTheme = Typography.material2021(platform: TargetPlatform.android)
@@ -68,6 +82,12 @@ abstract final class AppTheme {
           fontFamily: _fontFamily,
         )
         .copyWith(
+          headlineLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+            color: onSurface,
+          ),
           headlineMedium: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w700,
@@ -84,15 +104,22 @@ abstract final class AppTheme {
             fontWeight: FontWeight.w600,
             color: onSurface,
           ),
-          bodyMedium: TextStyle(fontSize: 15, height: 1.45, color: onSurface),
+          bodyLarge: TextStyle(fontSize: 16, height: 1.6, color: onSurface),
+          bodyMedium: TextStyle(fontSize: 15, height: 1.5, color: onSurface),
           bodySmall: TextStyle(
             fontSize: 13,
-            height: 1.4,
+            height: 1.5,
             color: secondaryOnSurface,
           ),
-          labelLarge: const TextStyle(
-            fontSize: 15,
+          labelLarge: TextStyle(
+            fontSize: 14,
             fontWeight: FontWeight.w600,
+            color: onSurface,
+          ),
+          labelMedium: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: secondaryOnSurface,
           ),
         );
 
@@ -105,7 +132,7 @@ abstract final class AppTheme {
       textTheme: textTheme,
       splashFactory: InkRipple.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: background,
+        backgroundColor: Colors.transparent,
         foregroundColor: onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -117,21 +144,19 @@ abstract final class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: cardBorder),
+          borderRadius: BorderRadius.circular(cardRadius),
+          side: BorderSide(color: cardBorder, width: 1),
         ),
       ),
       dividerTheme: DividerThemeData(color: cardBorder, thickness: 1, space: 1),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: brightness == Brightness.light
-            ? const Color(0xFFF7F4FF)
-            : const Color(0xFF272040),
+        fillColor: isLight ? const Color(0xFFF7F4FF) : const Color(0xFF2A243A),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
-        hintStyle: TextStyle(color: secondaryOnSurface, fontSize: 15),
+        hintStyle: TextStyle(color: secondaryOnSurface, fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -142,16 +167,16 @@ abstract final class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+          borderSide: BorderSide(color: brandPrimary, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.danger, width: 1.2),
+          borderSide: BorderSide(color: AppColors.danger, width: 1.2),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: brandPrimary,
           foregroundColor: Colors.white,
           minimumSize: const Size(64, 52),
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -159,13 +184,14 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          elevation: 0,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: brandPrimary,
           minimumSize: const Size(64, 48),
-          side: const BorderSide(color: AppColors.primary),
+          side: BorderSide(color: brandPrimary, width: 1.2),
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -174,7 +200,7 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: brandPrimary,
           textStyle: textTheme.labelLarge,
         ),
       ),
@@ -186,14 +212,15 @@ abstract final class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
-        indicatorColor: AppColors.primary.withValues(alpha: 0.14),
-        height: 68,
+        indicatorColor: brandPrimary.withValues(alpha: 0.12),
+        height: 72,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
+                ? brandPrimary
                 : secondaryOnSurface,
+            size: 24,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -203,7 +230,7 @@ abstract final class AppTheme {
                 ? FontWeight.w700
                 : FontWeight.w500,
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
+                ? brandPrimary
                 : secondaryOnSurface,
           ),
         ),
@@ -224,9 +251,8 @@ abstract final class AppTheme {
                 : onSurface,
           ),
           backgroundColor: WidgetStateProperty.resolveWith(
-            (states) => states.contains(WidgetState.selected)
-                ? AppColors.primary
-                : surface,
+            (states) =>
+                states.contains(WidgetState.selected) ? brandPrimary : surface,
           ),
           side: WidgetStatePropertyAll(BorderSide(color: cardBorder)),
           shape: WidgetStatePropertyAll(
@@ -236,25 +262,23 @@ abstract final class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: surface,
-        selectedColor: AppColors.primary.withValues(alpha: 0.12),
+        selectedColor: brandPrimary.withValues(alpha: 0.12),
         side: BorderSide(color: cardBorder),
         labelStyle: TextStyle(
-          fontSize: 13.5,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
           color: onSurface,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppColors.primary,
-      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: brandPrimary),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
+        backgroundColor: Color(0xFF7655C9),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -268,6 +292,15 @@ abstract final class AppTheme {
         titleTextStyle: textTheme.titleLarge,
         contentTextStyle: textTheme.bodyMedium,
       ),
+    );
+  }
+
+  /// Soft elevation shadow used by cards.
+  static BoxShadow cardShadow({required bool isLight}) {
+    return BoxShadow(
+      color: Colors.black.withValues(alpha: isLight ? 0.04 : 0.20),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
     );
   }
 }

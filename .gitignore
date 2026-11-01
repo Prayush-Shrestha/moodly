@@ -46,3 +46,11 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Backend (Phase 3) — never commit secrets or local artifacts
+backend/.env
+backend/.venv/
+backend/**/__pycache__/
+backend/*.db
+backend/.pytest_cache/
+backend/htmlcov/

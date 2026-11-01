@@ -106,12 +106,12 @@ class HomeScreenState extends State<HomeScreen> {
               : _error != null
               ? ErrorState(message: _error.toString(), onRetry: refresh)
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
                   children: [
                     _buildHeader(theme),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 20),
                     AnimatedSection(child: _buildTodayCard(theme)),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                     AnimatedSection(child: _buildWeekSummary(theme)),
                     const SizedBox(height: 20),
                     if (_homeInsight != null) ...[
@@ -145,15 +145,17 @@ class HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 AppDates.greeting(now),
-                style: theme.textTheme.headlineMedium,
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(Formatters.longDate(now), style: theme.textTheme.bodySmall),
             ],
           ),
         ),
         const SizedBox(width: 12),
-        const LogoMark(size: 40),
+        const LogoMark(size: 44),
       ],
     );
   }
@@ -161,42 +163,32 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildTodayCard(ThemeData theme) {
     final entry = _todayEntry;
     if (entry == null) {
-      return Container(
-        padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-          gradient: AppColors.brandGradient,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.28),
-              blurRadius: 22,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
+      return AppCard(
+        onTap: () => _openCheckIn(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'How are you feeling today?',
-              style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Take a moment to check in with yourself.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFFE4DBFB),
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 18),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.deepPurple,
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => _openCheckIn(),
+                icon: const Icon(Icons.add_reaction_outlined),
+                label: const Text('Check in'),
               ),
-              onPressed: () => _openCheckIn(),
-              icon: const Icon(Icons.add_reaction_outlined),
-              label: const Text('Check in'),
             ),
           ],
         ),
@@ -248,7 +240,7 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           Row(
             children: [
-              Text('This week', style: theme.textTheme.titleMedium),
+              Text('This week', style: theme.textTheme.titleLarge),
               const Spacer(),
               Text(
                 '${_week.length} ${_week.length == 1 ? 'check-in' : 'check-ins'}',
@@ -256,18 +248,24 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              for (var i = 0; i < days.length; i++) ...[
-                _DayDot(date: days[i], entry: byDay[AppDates.dateKey(days[i])]),
-                if (i < days.length - 1) const SizedBox(width: 8),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 40,
+            child: Row(
+              children: [
+                for (var i = 0; i < days.length; i++) ...[
+                  _DayDot(
+                    date: days[i],
+                    entry: byDay[AppDates.dateKey(days[i])],
+                  ),
+                  if (i < days.length - 1) const SizedBox(width: 10),
+                ],
               ],
-            ],
+            ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Wrap(
-            spacing: 24,
+            spacing: 20,
             runSpacing: 12,
             children: [
               _MiniStat(
@@ -306,8 +304,8 @@ class HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
@@ -316,11 +314,11 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Icon(
                     _insightIcon(insight.type),
                     color: color,
-                    size: 20,
+                    size: 22,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +331,7 @@ class HomeScreenState extends State<HomeScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       insight.description,
                       style: theme.textTheme.bodyMedium,
@@ -343,7 +341,7 @@ class HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Icon(
                 Icons.chevron_right_rounded,
                 color: color.withValues(alpha: 0.7),
@@ -393,9 +391,10 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             if (i < _recent.length - 1)
               Divider(
-                indent: 4,
-                endIndent: 4,
+                indent: 0,
+                endIndent: 0,
                 color: theme.colorScheme.outlineVariant,
+                height: 1,
               ),
           ],
         ],
@@ -445,27 +444,26 @@ class _DayDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isToday = AppDates.isSameDay(date, DateTime.now());
     final mood = entry?.mood;
     return Semantics(
       label: mood == null
           ? 'No check-in on ${Formatters.mediumDate(date)}'
           : '${Formatters.mediumDate(date)}: ${mood.label}',
       child: Container(
-        width: 30,
-        height: 30,
+        width: 34,
+        height: 34,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: mood == null
               ? theme.colorScheme.surfaceContainerHighest
               : mood.tint,
-          border: isToday
-              ? Border.all(color: AppColors.primary, width: 1.6)
-              : null,
+          border: mood == null
+              ? null
+              : Border.all(color: mood.color.withValues(alpha: 0.5), width: 1),
         ),
         child: mood == null
             ? null
-            : Icon(mood.icon, size: 17, color: mood.color),
+            : Center(child: Icon(mood.icon, size: 16, color: mood.color)),
       ),
     );
   }
@@ -513,19 +511,24 @@ class _QuickLink extends StatelessWidget {
     return Material(
       color: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: theme.colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
           child: Column(
             children: [
-              Icon(icon, color: AppColors.primary),
+              Icon(icon, color: AppColors.primary, size: 24),
               const SizedBox(height: 8),
-              Text(label, style: theme.textTheme.bodySmall),
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),

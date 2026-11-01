@@ -46,11 +46,7 @@ class _LogoPainter extends CustomPainter {
     final rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
 
     final bgPaint = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [AppColors.primary, AppColors.deepPurple],
-      ).createShader(rect);
+      ..shader = AppColors.brandGradient.createShader(rect);
     canvas.drawRRect(rrect, bgPaint);
 
     // Mint smile + eyes on the purple squircle.
@@ -116,7 +112,7 @@ class BrandLockup extends StatelessWidget {
         Text(
           'Moodly',
           style: theme.textTheme.headlineMedium?.copyWith(
-            color: textColor ?? AppColors.deepPurple,
+            color: textColor ?? AppColors.primary,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
           ),
@@ -125,7 +121,7 @@ class BrandLockup extends StatelessWidget {
         Text(
           'Your Daily Mood',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: taglineColor ?? AppColors.secondaryText,
+            color: taglineColor ?? AppColors.lightSecondaryText,
             letterSpacing: 0.2,
           ),
         ),

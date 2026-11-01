@@ -78,14 +78,11 @@ class CalendarScreenState extends State<CalendarScreen> {
             : _error != null
             ? ErrorState(message: _error!, onRetry: refresh)
             : ListView(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 28),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                 children: [
                   _buildCalendar(theme),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const .symmetric(horizontal: 8),
-                    child: _buildSelectedDay(theme),
-                  ),
+                  const SizedBox(height: 16),
+                  _buildSelectedDay(theme),
                 ],
               ),
       ),
@@ -118,7 +115,9 @@ class CalendarScreenState extends State<CalendarScreen> {
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
         titleCentered: true,
-        titleTextStyle: theme.textTheme.titleMedium!,
+        titleTextStyle: theme.textTheme.titleLarge!.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
         leftChevronIcon: Icon(
           Icons.chevron_left_rounded,
           color: theme.colorScheme.onSurface,
@@ -127,11 +126,19 @@ class CalendarScreenState extends State<CalendarScreen> {
           Icons.chevron_right_rounded,
           color: theme.colorScheme.onSurface,
         ),
-        headerPadding: const EdgeInsets.symmetric(vertical: 10),
+        headerPadding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekdayStyle: theme.textTheme.bodySmall!,
-        weekendStyle: theme.textTheme.bodySmall!,
+        weekdayStyle: theme.textTheme.bodySmall!.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+        weekendStyle: theme.textTheme.bodySmall!.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
       ),
       calendarStyle: CalendarStyle(
         todayDecoration: BoxDecoration(
@@ -142,7 +149,7 @@ class CalendarScreenState extends State<CalendarScreen> {
           color: theme.colorScheme.onSurface,
           fontWeight: FontWeight.w700,
         ),
-        selectedDecoration: const BoxDecoration(
+        selectedDecoration: BoxDecoration(
           color: AppColors.primary,
           shape: BoxShape.circle,
         ),
@@ -153,7 +160,7 @@ class CalendarScreenState extends State<CalendarScreen> {
         defaultTextStyle: TextStyle(color: theme.colorScheme.onSurface),
         weekendTextStyle: TextStyle(color: theme.colorScheme.onSurface),
         outsideTextStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-        cellMargin: const EdgeInsets.all(5),
+        cellMargin: const EdgeInsets.all(6),
       ),
       calendarBuilders: CalendarBuilders<MoodEntry>(
         singleMarkerBuilder: (context, day, entry) => Container(
@@ -169,8 +176,8 @@ class CalendarScreenState extends State<CalendarScreen> {
         ),
         selectedBuilder: (context, day, _) {
           return Container(
-            margin: const EdgeInsets.all(5),
-            decoration: const BoxDecoration(
+            margin: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.primary,
             ),
@@ -189,13 +196,16 @@ class CalendarScreenState extends State<CalendarScreen> {
           final isSelected = AppDates.isSameDay(day, _selectedDay);
           if (isSelected) return null;
           return Container(
-            margin: const EdgeInsets.all(5),
+            margin: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: entry != null
                   ? entry.mood.tint
                   : AppColors.primary.withValues(alpha: 0.10),
-              border: Border.all(color: AppColors.primary, width: 1.6),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.35),
+                width: 1.5,
+              ),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -212,7 +222,7 @@ class CalendarScreenState extends State<CalendarScreen> {
           final entry = _byDate[AppDates.dateKey(day)];
           if (entry == null) return null;
           return Container(
-            margin: const EdgeInsets.all(5),
+            margin: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: entry.mood.tint,
@@ -247,7 +257,7 @@ class CalendarScreenState extends State<CalendarScreen> {
                   isSelectedToday
                       ? 'Today · ${Formatters.mediumDate(_selectedDay)}'
                       : Formatters.fullDate(_selectedDay),
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.titleLarge,
                 ),
               ),
               if (entry != null)
@@ -258,7 +268,7 @@ class CalendarScreenState extends State<CalendarScreen> {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           if (entry != null)
             MoodEntryCard(entry: entry, showDate: false)
           else if (isFuture)

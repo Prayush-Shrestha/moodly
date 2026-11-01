@@ -43,7 +43,7 @@ class EnergySelector extends StatelessWidget {
           showSelectedIcon: false,
           multiSelectionEnabled: false,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Row(
           children: [
             Icon(

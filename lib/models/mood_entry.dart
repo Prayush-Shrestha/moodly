@@ -19,6 +19,8 @@ class MoodEntry {
     this.note,
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.clientId,
+    this.syncedAt,
   }) : date = AppDates.dateOnly(date),
        energy = _validateEnergy(energy),
        createdAt = createdAt ?? DateTime.now(),
@@ -39,6 +41,17 @@ class MoodEntry {
   final String? note;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Stable id used for cloud sync (Phase 3). Generated on first save; never
+  /// changes afterwards. `null` until the row has been persisted at least once
+  /// (migration backfills older rows).
+  final String? clientId;
+
+  /// When this row was last accepted by the cloud account (`null` = pending).
+  final DateTime? syncedAt;
+
+  /// True when the row has local changes not yet acknowledged by the server.
+  bool get needsSync => syncedAt == null;
 
   static int _validateEnergy(int energy) {
     if (energy < 1 || energy > 5) {
@@ -61,6 +74,10 @@ class MoodEntry {
     bool clearNote = false,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? clientId,
+    bool clearClientId = false,
+    DateTime? syncedAt,
+    bool clearSyncedAt = false,
   }) {
     return MoodEntry(
       id: id ?? this.id,
@@ -71,6 +88,8 @@ class MoodEntry {
       note: clearNote ? null : (note ?? this.note),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      clientId: clearClientId ? null : (clientId ?? this.clientId),
+      syncedAt: clearSyncedAt ? null : (syncedAt ?? this.syncedAt),
     );
   }
 
@@ -84,11 +103,14 @@ class MoodEntry {
     'note': note,
     'created_at': createdAt.toUtc().millisecondsSinceEpoch,
     'updated_at': updatedAt.toUtc().millisecondsSinceEpoch,
+    'client_id': clientId,
+    'synced_at': syncedAt?.toUtc().millisecondsSinceEpoch,
   };
 
   factory MoodEntry.fromMap(Map<String, Object?> map) {
     final createdMs = map['created_at'] as int?;
     final updatedMs = map['updated_at'] as int?;
+    final syncedMs = map['synced_at'] as int?;
     return MoodEntry(
       id: map['id'] as int?,
       date: AppDates.parseDateKey(map['date'] as String),
@@ -106,6 +128,13 @@ class MoodEntry {
           ? null
           : DateTime.fromMillisecondsSinceEpoch(
               updatedMs,
+              isUtc: true,
+            ).toLocal(),
+      clientId: map['client_id'] as String?,
+      syncedAt: syncedMs == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              syncedMs,
               isUtc: true,
             ).toLocal(),
     );

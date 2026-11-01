@@ -73,22 +73,22 @@ class _EmotionChip extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   emotion.icon,
-                  size: 17,
+                  size: 18,
                   color: isSelected
                       ? accent
                       : theme.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Text(
                   emotion.label,
                   style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: 13.5,
+                    fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),

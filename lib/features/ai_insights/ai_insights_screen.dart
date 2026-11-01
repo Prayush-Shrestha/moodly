@@ -11,6 +11,7 @@ import '../../models/insight_card.dart';
 import '../../models/mood_entry.dart';
 import '../../services/mood_analytics_service.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/app_section.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_views.dart';
 import 'ai_insights_view_model.dart';
@@ -37,11 +38,6 @@ class _AiInsightsScreenState extends State<AiInsightsScreen> {
     );
     _viewModel.addListener(_onChanged);
     _viewModel.load();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   void _onChanged() {
@@ -125,8 +121,8 @@ class _AiInsightsScreenState extends State<AiInsightsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Data coverage', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 10),
+          Text('Data coverage', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -186,7 +182,7 @@ class _AiInsightsScreenState extends State<AiInsightsScreen> {
   Widget _buildInsightCard(ThemeData theme, InsightCard insight) {
     final color = insight.typeColor;
     return AppCard(
-      color: color.withValues(alpha: 0.06),
+      color: color.withValues(alpha: 0.08),
       borderColor: color.withValues(alpha: 0.25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,18 +269,21 @@ class _AiInsightsScreenState extends State<AiInsightsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          Row(
-            children: [
-              for (var i = 0; i < days.length; i++) ...[
-                Expanded(
-                  child: _DayDot(
-                    date: days[i],
-                    entry: byDay[AppDates.dateKey(days[i])],
+          SizedBox(
+            height: 36,
+            child: Row(
+              children: [
+                for (var i = 0; i < days.length; i++) ...[
+                  Expanded(
+                    child: _DayDot(
+                      date: days[i],
+                      entry: byDay[AppDates.dateKey(days[i])],
+                    ),
                   ),
-                ),
-                if (i < days.length - 1) const SizedBox(width: 8),
+                  if (i < days.length - 1) const SizedBox(width: 10),
+                ],
               ],
-            ],
+            ),
           ),
           const SizedBox(height: 10),
           Text(
@@ -525,8 +524,7 @@ class _AiInsightsScreenState extends State<AiInsightsScreen> {
   Widget _buildDisclaimer(ThemeData theme) {
     return AppCard(
       color: theme.colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(14),
+      child: AppSection(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -576,7 +574,7 @@ class _DayDot extends StatelessWidget {
           ? 'No check-in on ${Formatters.mediumDate(date)}'
           : '${Formatters.mediumDate(date)}: ${mood.label}',
       child: Container(
-        height: 30,
+        height: 34,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: mood == null
@@ -604,7 +602,7 @@ class _CoverageStat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: theme.textTheme.headlineMedium),
+        Text(value, style: theme.textTheme.headlineLarge),
         const SizedBox(height: 2),
         Text(label, style: theme.textTheme.bodySmall),
         if (caption != null) ...[

@@ -159,10 +159,10 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
               AbsorbPointer(
                 absorbing: _saving,
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
                   children: [
                     _buildDateHeader(theme),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 20),
                     _buildMoodSection(theme),
                     const SizedBox(height: 24),
                     _buildEmotionSection(theme),
@@ -170,7 +170,7 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
                     _buildEnergySection(theme),
                     const SizedBox(height: 24),
                     _buildNoteSection(theme),
-                    const SizedBox(height: 110),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
@@ -187,7 +187,7 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
         bottomNavigationBar: SafeArea(
           minimum: const EdgeInsets.fromLTRB(20, 8, 20, 16),
           child: SizedBox(
-            height: 56,
+            height: 52,
             child: FilledButton.icon(
               onPressed: canSave ? _save : null,
               icon: const Icon(Icons.check_rounded),
@@ -268,6 +268,7 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
             '${_emotions.length} selected',
             style: theme.textTheme.bodySmall?.copyWith(
               color: AppColors.primary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -302,9 +303,10 @@ class _MoodCheckInScreenState extends State<MoodCheckInScreen> {
           minLines: 3,
           textCapitalization: TextCapitalization.sentences,
           maxLength: 2000,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'What made you feel this way?',
-            counterStyle: TextStyle(fontSize: 12),
+            counterStyle: const TextStyle(fontSize: 12),
+            counterText: '',
           ),
         ),
       ],

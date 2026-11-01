@@ -1,7 +1,8 @@
 import 'package:moodly/core/utils/formatters.dart';
 import 'package:moodly/models/journal_entry.dart';
 
-/// Result of a journal reflection, produced by a local rule-based service.
+/// Result of a journal reflection, produced by a local rule-based service or
+/// by the remote AI backend (Phase 3).
 class JournalReflectionResult {
   const JournalReflectionResult({
     required this.summary,
@@ -9,6 +10,11 @@ class JournalReflectionResult {
     required this.themes,
     required this.reflectionQuestions,
     required this.isRuleBased,
+    this.positiveObservations = const [],
+    this.challenges = const [],
+    this.explicitEmotions = const [],
+    this.inferredEmotions = const [],
+    this.provider = 'local_rules',
   });
 
   /// Short, non-judgmental summary of the entry.
@@ -25,6 +31,21 @@ class JournalReflectionResult {
 
   /// True when produced by the local rule-based service.
   final bool isRuleBased;
+
+  /// Positive observations explicitly present in the text (AI reflections).
+  final List<String> positiveObservations;
+
+  /// Challenges explicitly mentioned in the text (AI reflections).
+  final List<String> challenges;
+
+  /// Emotions the writer explicitly expressed (AI reflections).
+  final List<String> explicitEmotions;
+
+  /// Emotions inferred by the model, kept separate from explicit ones.
+  final List<String> inferredEmotions;
+
+  /// `local_rules` or `ai:<provider>`.
+  final String provider;
 }
 
 /// Rule-based journal reflection service.

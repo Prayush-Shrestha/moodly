@@ -1,8 +1,8 @@
 /// A reflection generated for a standalone [JournalEntry].
 ///
-/// Reflections are produced locally by a rule-based service (Phase 2). They
-/// are stored so they survive a restart and can be regenerated on demand.
-/// Deleting the parent journal entry cascades and removes the reflection.
+/// Phase 2 produced rule-based reflections; Phase 3 adds AI-generated ones
+/// from the backend provider. Deleting the parent journal entry cascades and
+/// removes the reflection.
 class JournalReflection {
   const JournalReflection({
     this.id,
@@ -13,6 +13,11 @@ class JournalReflection {
     this.reflectionQuestions = const [],
     this.isRuleBased = true,
     required this.createdAt,
+    this.positiveObservations = const [],
+    this.challenges = const [],
+    this.explicitEmotions = const [],
+    this.inferredEmotions = const [],
+    this.provider = 'local_rules',
   });
 
   /// Database primary key; `null` before the reflection has been persisted.
@@ -38,6 +43,27 @@ class JournalReflection {
 
   final DateTime createdAt;
 
+  /// Phase 3 (AI reflections): positive things explicitly present in the text.
+  final List<String> positiveObservations;
+
+  /// Phase 3 (AI reflections): challenges explicitly mentioned in the text.
+  final List<String> challenges;
+
+  /// Phase 3 (AI): emotions the writer EXPLICITLY expressed.
+  final List<String> explicitEmotions;
+
+  /// Phase 3 (AI): emotions the model inferred (clearly separated from
+  /// explicitly expressed ones so the UI can label them honestly).
+  final List<String> inferredEmotions;
+
+  /// What produced this: `local_rules` or `ai:<provider>`.
+  final String provider;
+
+  /// Effective explicit-emotion list: AI reflections keep explicit/inferred
+  /// separate; rule-based ones fall back to the Phase 2 keyword scan.
+  List<String> get allEmotions =>
+      explicitEmotions.isNotEmpty ? explicitEmotions : detectedEmotions;
+
   Map<String, Object?> toMap() => {
     if (id != null) 'id': id,
     'journal_entry_id': journalEntryId,
@@ -47,6 +73,11 @@ class JournalReflection {
     'reflection_questions': reflectionQuestions.join(','),
     'is_rule_based': isRuleBased ? 1 : 0,
     'created_at': createdAt.toUtc().millisecondsSinceEpoch,
+    'positive_observations': positiveObservations.join(','),
+    'challenges': challenges.join(','),
+    'explicit_emotions': explicitEmotions.join(','),
+    'inferred_emotions': inferredEmotions.join(','),
+    'provider': provider,
   };
 
   factory JournalReflection.fromMap(Map<String, Object?> map) {
@@ -59,6 +90,11 @@ class JournalReflection {
       reflectionQuestions: _parseList(map['reflection_questions'] as String?),
       isRuleBased: (map['is_rule_based'] as int?) == 1,
       createdAt: _parseTime(map['created_at']),
+      positiveObservations: _parseList(map['positive_observations'] as String?),
+      challenges: _parseList(map['challenges'] as String?),
+      explicitEmotions: _parseList(map['explicit_emotions'] as String?),
+      inferredEmotions: _parseList(map['inferred_emotions'] as String?),
+      provider: (map['provider'] as String?) ?? 'local_rules',
     );
   }
 
@@ -71,6 +107,11 @@ class JournalReflection {
     List<String>? reflectionQuestions,
     bool? isRuleBased,
     DateTime? createdAt,
+    List<String>? positiveObservations,
+    List<String>? challenges,
+    List<String>? explicitEmotions,
+    List<String>? inferredEmotions,
+    String? provider,
   }) {
     return JournalReflection(
       id: id ?? this.id,
@@ -81,6 +122,11 @@ class JournalReflection {
       reflectionQuestions: reflectionQuestions ?? this.reflectionQuestions,
       isRuleBased: isRuleBased ?? this.isRuleBased,
       createdAt: createdAt ?? this.createdAt,
+      positiveObservations: positiveObservations ?? this.positiveObservations,
+      challenges: challenges ?? this.challenges,
+      explicitEmotions: explicitEmotions ?? this.explicitEmotions,
+      inferredEmotions: inferredEmotions ?? this.inferredEmotions,
+      provider: provider ?? this.provider,
     );
   }
 
@@ -107,5 +153,10 @@ class JournalReflection {
     'reflectionQuestions': reflectionQuestions,
     'isRuleBased': isRuleBased,
     'createdAt': createdAt.toIso8601String(),
+    'positiveObservations': positiveObservations,
+    'challenges': challenges,
+    'explicitEmotions': explicitEmotions,
+    'inferredEmotions': inferredEmotions,
+    'provider': provider,
   };
 }

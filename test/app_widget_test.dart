@@ -20,7 +20,7 @@ void main() {
   /// transitions finish and every tab's in-isolate FFI SQLite futures drain —
   /// including those of offstage tabs in the [IndexedStack], so nothing is
   /// pending when the database is closed in teardown.
-  Future<void> settle(WidgetTester tester, {int pumps = 60}) async {
+  Future<void> settle(WidgetTester tester, {int pumps = 100}) async {
     for (var i = 0; i < pumps; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
@@ -56,10 +56,16 @@ void main() {
     (tester) async {
       await pumpApp(tester);
 
-      expect(find.text('No check-ins yet'), findsOneWidget);
-      expect(find.text('Check in'), findsOneWidget);
-      expect(find.text('This week'), findsOneWidget);
-      expect(find.text('Recent check-ins'), findsOneWidget);
+      expect(
+        find.text('No check-ins yet', skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(find.text('Check in', skipOffstage: false), findsOneWidget);
+      expect(find.text('This week', skipOffstage: false), findsOneWidget);
+      expect(
+        find.text('Recent check-ins', skipOffstage: false),
+        findsOneWidget,
+      );
     },
   );
 
@@ -159,11 +165,14 @@ void main() {
 
     // Settings → clear data → cancel keeps data.
     await tapAndSettle(tester, find.text('Settings'));
+    // Phase 3 added sections above "Your data"; scroll it into view first.
+    await tester.scrollUntilVisible(find.text('Clear all data'), 300);
     await tapAndSettle(tester, find.text('Clear all data'));
     await tapAndSettle(tester, find.text('Cancel'));
     expect(await repository.count(), 1);
 
     // Confirm deletes everything.
+    await tester.scrollUntilVisible(find.text('Clear all data'), 300);
     await tapAndSettle(tester, find.text('Clear all data'));
     await tapAndSettle(tester, find.text('Delete everything'));
     expect(await repository.count(), 0);

@@ -22,36 +22,47 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isLight = theme.brightness == Brightness.light;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                color: AppColors.primary.withValues(
+                  alpha: isLight ? 0.10 : 0.18,
+                ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 34, color: AppColors.primary),
+              child: Icon(icon, size: 36, color: AppColors.primary),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             Text(
               title,
-              style: theme.textTheme.titleMedium,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               message,
-              style: theme.textTheme.bodySmall,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 20),
-              FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: onAction,
+                  child: Text(actionLabel!),
+                ),
+              ),
             ],
           ],
         ),
@@ -76,15 +87,15 @@ class LoadingState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(
-              width: 30,
-              height: 30,
+              width: 34,
+              height: 34,
               child: CircularProgressIndicator(strokeWidth: 3),
             ),
             if (label != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               Text(
                 label!,
-                style: theme.textTheme.bodySmall,
+                style: theme.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -107,41 +118,46 @@ class ErrorState extends StatelessWidget {
     final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 color: AppColors.danger.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.error_outline_rounded,
-                size: 34,
+                size: 36,
                 color: AppColors.danger,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             Text(
               'Something went wrong',
-              style: theme.textTheme.titleMedium,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               message,
-              style: theme.textTheme.bodySmall,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: 20),
-              OutlinedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Try again'),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Try again'),
+                ),
               ),
             ],
           ],

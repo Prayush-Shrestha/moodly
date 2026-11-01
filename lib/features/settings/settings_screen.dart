@@ -6,8 +6,13 @@ import '../../widgets/app_card.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/logo_mark.dart';
 import '../../widgets/section_header.dart';
+import '../account/account_screen.dart';
+import '../privacy/privacy_screen.dart';
+import '../reports/reports_screen.dart';
+import '../sync/sync_screen.dart';
 
-/// Settings: theme, data export, clear data and app info.
+/// Settings: theme, Phase 3 account/sync/reports/privacy, data export,
+/// clear data and app info.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, required this.settings});
 
@@ -74,7 +79,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       context,
       title: 'Clear all data?',
       message:
-          'Every mood check-in and journal entry will be permanently deleted from this device. '
+          'Every mood check-in, journal entry, and saved reflection will be permanently deleted from this device. '
           'This cannot be undone. Consider exporting a backup first.',
       confirmLabel: 'Delete everything',
       destructive: true,
@@ -84,6 +89,8 @@ class SettingsScreenState extends State<SettingsScreen> {
       final services = AppServices.of(context);
       await services.moodRepository.deleteAll();
       await services.journalRepository.deleteAll();
+      await services.journalReflectionRepository.deleteAll();
+      await services.reportRepository.deleteAll();
       if (!mounted) return;
       await _loadCounts();
       if (!mounted) return;
@@ -102,109 +109,194 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final services = AppServices.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
-          children: [
-            const SectionHeader(title: 'Appearance'),
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Theme', style: theme.textTheme.bodySmall),
-                  const SizedBox(height: 12),
-                  SegmentedButton<ThemeMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: ThemeMode.system,
-                        label: Text('System'),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.light,
-                        label: Text('Light'),
-                      ),
-                      ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
-                    ],
-                    selected: {widget.settings.themeMode},
-                    showSelectedIcon: false,
-                    onSelectionChanged: (selection) =>
-                        widget.settings.setThemeMode(selection.first),
-                  ),
-                ],
+        child: ListenableBuilder(
+          listenable: services.authService,
+          builder: (context, _) => ListView(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+            children: [
+              const SectionHeader(title: 'Appearance'),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Theme', style: theme.textTheme.bodySmall),
+                    const SizedBox(height: 12),
+                    SegmentedButton<ThemeMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          label: Text('System'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          label: Text('Light'),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          label: Text('Dark'),
+                        ),
+                      ],
+                      selected: {widget.settings.themeMode},
+                      showSelectedIcon: false,
+                      onSelectionChanged: (selection) =>
+                          widget.settings.setThemeMode(selection.first),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const SectionHeader(title: 'Your data'),
-            AppCard(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.ios_share_rounded),
-                    title: const Text('Export all data (JSON)'),
-                    subtitle: Text(
-                      _loading
-                          ? 'Loading…'
-                          : '$_moodCount mood check-ins · $_journalCount journal entries',
+              const SizedBox(height: 20),
+              const SectionHeader(title: 'Account & sync'),
+              AppCard(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.person_outline_rounded),
+                      title: const Text('Account'),
+                      subtitle: Text(
+                        services.authService.isSignedIn
+                            ? (services.authService.session?.email.isNotEmpty ==
+                                      true
+                                  ? services.authService.session!.email
+                                  : 'Signed in')
+                            : 'Optional — sign in for AI and sync',
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AccountScreen(),
+                        ),
+                      ),
                     ),
-                    trailing: _exporting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2.4),
-                          )
-                        : const Icon(Icons.chevron_right_rounded),
-                    enabled: !_exporting,
-                    onTap: _export,
-                  ),
-                  const Divider(indent: 16, endIndent: 16),
-                  ListTile(
-                    leading: Icon(
-                      Icons.delete_forever_outlined,
-                      color: theme.colorScheme.error,
+                    const Divider(indent: 16, endIndent: 16),
+                    ListTile(
+                      leading: const Icon(Icons.sync_rounded),
+                      title: const Text('Cloud sync'),
+                      subtitle: Text(
+                        !services.authService.isSignedIn
+                            ? 'Sign in to enable'
+                            : (widget.settings.cloudSyncEnabled
+                                  ? 'Enabled — manage and run sync here'
+                                  : 'Disabled (opt-in)'),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SyncScreen(),
+                        ),
+                      ),
                     ),
-                    title: Text(
-                      'Clear all data',
-                      style: TextStyle(color: theme.colorScheme.error),
+                    const Divider(indent: 16, endIndent: 16),
+                    ListTile(
+                      leading: const Icon(Icons.summarize_outlined),
+                      title: const Text('Reports'),
+                      subtitle: const Text(
+                        'Weekly and monthly summaries from your check-ins',
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ReportsScreen(),
+                        ),
+                      ),
                     ),
-                    subtitle: const Text(
-                      'Permanently delete everything on this device',
+                    const Divider(indent: 16, endIndent: 16),
+                    ListTile(
+                      leading: const Icon(Icons.privacy_tip_outlined),
+                      title: const Text('Privacy & data'),
+                      subtitle: const Text(
+                        'Consents, AI processing, what is stored where',
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const PrivacyScreen(),
+                        ),
+                      ),
                     ),
-                    onTap: _clearAllData,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const SectionHeader(title: 'About'),
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(child: BrandLockup(markSize: 56)),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Text(
-                      'Version 1.0.0 (Phase 1)',
+              const SizedBox(height: 20),
+              const SectionHeader(title: 'Your data'),
+              AppCard(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.ios_share_rounded),
+                      title: const Text('Export all data (JSON)'),
+                      subtitle: Text(
+                        _loading
+                            ? 'Loading…'
+                            : '$_moodCount mood check-ins · $_journalCount journal entries',
+                      ),
+                      trailing: _exporting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.4,
+                              ),
+                            )
+                          : const Icon(Icons.chevron_right_rounded),
+                      enabled: !_exporting,
+                      onTap: _export,
+                    ),
+                    const Divider(indent: 16, endIndent: 16),
+                    ListTile(
+                      leading: Icon(
+                        Icons.delete_forever_outlined,
+                        color: theme.colorScheme.error,
+                      ),
+                      title: Text(
+                        'Clear all data',
+                        style: TextStyle(color: theme.colorScheme.error),
+                      ),
+                      subtitle: const Text(
+                        'Permanently delete everything on this device',
+                      ),
+                      onTap: _clearAllData,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const SectionHeader(title: 'About'),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(child: BrandLockup(markSize: 60)),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Text(
+                        'Version 1.1.0 (Phase 3)',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Privacy', style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Moodly is local-first: your mood check-ins, journal entries, '
+                      'reflections, and reports are stored on this device in a SQLite '
+                      'database. SQLite files are not encrypted by default, so treat '
+                      'this device accordingly. Optional cloud sync and AI reflections '
+                      'require an account and explicit consent (Settings → Privacy & '
+                      'data) — nothing is uploaded otherwise, and your data is never '
+                      'used to train AI models.',
                       style: theme.textTheme.bodySmall,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Privacy', style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Moodly is local-first: your mood check-ins and journal entries are stored '
-                    'only on this device, in a SQLite database. SQLite files are not encrypted '
-                    'by default, so treat this device accordingly. Nothing is uploaded anywhere — '
-                    'the app works fully offline.',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

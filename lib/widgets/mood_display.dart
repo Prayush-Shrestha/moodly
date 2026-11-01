@@ -33,7 +33,10 @@ class MoodBadge extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           mood.label,
-          style: theme.textTheme.titleMedium?.copyWith(fontSize: fontSize),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
@@ -92,7 +95,7 @@ class EmotionTagList extends StatelessWidget {
       children: [
         for (final emotion in shown)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
@@ -105,14 +108,19 @@ class EmotionTagList extends StatelessWidget {
                   size: 14,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 4),
-                Text(emotion.label, style: theme.textTheme.bodySmall),
+                const SizedBox(width: 6),
+                Text(
+                  emotion.label,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
         if (overflow > 0)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
@@ -144,7 +152,7 @@ class MoodEntryCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

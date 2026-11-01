@@ -9,6 +9,8 @@ class JournalEntry {
     String? title,
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.clientId,
+    this.syncedAt,
   }) : date = AppDates.dateOnly(date),
        body = _validateBody(body),
        title = (title == null || title.trim().isEmpty) ? null : title.trim(),
@@ -28,6 +30,15 @@ class JournalEntry {
   final String body;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Stable id used for cloud sync (Phase 3); generated on first save.
+  final String? clientId;
+
+  /// When this row was last accepted by the cloud account (`null` = pending).
+  final DateTime? syncedAt;
+
+  /// True when the row has local changes not yet acknowledged by the server.
+  bool get needsSync => syncedAt == null;
 
   static String _validateBody(String body) {
     if (body.trim().isEmpty) {
@@ -55,6 +66,10 @@ class JournalEntry {
     String? body,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? clientId,
+    bool clearClientId = false,
+    DateTime? syncedAt,
+    bool clearSyncedAt = false,
   }) {
     return JournalEntry(
       id: id ?? this.id,
@@ -63,6 +78,8 @@ class JournalEntry {
       body: body ?? this.body,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      clientId: clearClientId ? null : (clientId ?? this.clientId),
+      syncedAt: clearSyncedAt ? null : (syncedAt ?? this.syncedAt),
     );
   }
 
@@ -74,11 +91,14 @@ class JournalEntry {
     'body': body,
     'created_at': createdAt.toUtc().millisecondsSinceEpoch,
     'updated_at': updatedAt.toUtc().millisecondsSinceEpoch,
+    'client_id': clientId,
+    'synced_at': syncedAt?.toUtc().millisecondsSinceEpoch,
   };
 
   factory JournalEntry.fromMap(Map<String, Object?> map) {
     final createdMs = map['created_at'] as int?;
     final updatedMs = map['updated_at'] as int?;
+    final syncedMs = map['synced_at'] as int?;
     return JournalEntry(
       id: map['id'] as int?,
       date: AppDates.parseDateKey(map['date'] as String),
@@ -94,6 +114,13 @@ class JournalEntry {
           ? null
           : DateTime.fromMillisecondsSinceEpoch(
               updatedMs,
+              isUtc: true,
+            ).toLocal(),
+      clientId: map['client_id'] as String?,
+      syncedAt: syncedMs == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(
+              syncedMs,
               isUtc: true,
             ).toLocal(),
     );

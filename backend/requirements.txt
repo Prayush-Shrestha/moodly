@@ -1,0 +1,11 @@
+# Moodly backend — pinned, mutually compatible versions (Python 3.11+ tested on 3.13)
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+SQLAlchemy==2.0.40
+alembic==1.15.2
+pydantic==2.11.3
+pydantic-settings==2.9.1
+argon2-cffi==23.1.0
+PyJWT==2.10.1
+httpx==0.28.1
+psycopg2-binary==2.9.10

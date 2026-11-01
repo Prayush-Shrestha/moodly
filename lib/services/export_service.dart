@@ -96,4 +96,17 @@ class ExportService {
     }
     return ExportResult(json: json, savedPath: file.path, shared: shared);
   }
+
+  /// Shares arbitrary plain text (e.g. a generated report) via the OS share
+  /// sheet. Returns whether the share flow completed.
+  Future<bool> shareText(String text, {String title = 'Moodly'}) async {
+    try {
+      final result = await SharePlus.instance.share(
+        ShareParams(text: text, title: title),
+      );
+      return result.status == ShareResultStatus.success;
+    } catch (_) {
+      return false;
+    }
+  }
 }

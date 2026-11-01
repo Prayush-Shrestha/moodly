@@ -11,16 +11,16 @@ enum Mood {
     'Great',
     'Feeling fantastic',
     5,
-    Color(0xFF2E9E6B),
+    MoodColors.great,
     Icons.wb_sunny_rounded,
   ),
-  good('good', 'Good', 'Pretty well', 4, Color(0xFF4C8DF6), Icons.mood_rounded),
+  good('good', 'Good', 'Pretty well', 4, MoodColors.good, Icons.mood_rounded),
   okay(
     'okay',
     'Okay',
     'Getting by',
     3,
-    Color(0xFFD9A22B),
+    MoodColors.okay,
     Icons.sentiment_neutral_rounded,
   ),
   low(
@@ -28,7 +28,7 @@ enum Mood {
     'Low',
     'A bit off',
     2,
-    Color(0xFFE07A5F),
+    MoodColors.low,
     Icons.sentiment_dissatisfied_rounded,
   ),
   terrible(
@@ -36,7 +36,7 @@ enum Mood {
     'Terrible',
     'Really rough',
     1,
-    Color(0xFFC94F6C),
+    MoodColors.terrible,
     Icons.sentiment_very_dissatisfied_rounded,
   );
 
@@ -60,7 +60,10 @@ enum Mood {
   final IconData icon;
 
   /// Gentle tint used for selected tiles/chips while keeping text readable.
-  Color get tint => color.withValues(alpha: 0.14);
+  Color get tint => color.withValues(alpha: 0.12);
+
+  /// Soft border color used for unselected mood tiles.
+  Color get borderColor => color.withValues(alpha: 0.35);
 
   /// Resolves a persisted name, falling back to [fallback] for unknown values
   /// (e.g. entries written by a future app version).
@@ -70,4 +73,22 @@ enum Mood {
     }
     return fallback;
   }
+}
+
+/// Gentle, brand-aligned mood colors used across the app.
+abstract final class MoodColors {
+  /// Great — gentle mint green.
+  static const Color great = Color(0xFF5DBFA0);
+
+  /// Good — gentle periwinkle blue.
+  static const Color good = Color(0xFF6E94F2);
+
+  /// Okay — gentle golden amber.
+  static const Color okay = Color(0xFFE8C96B);
+
+  /// Low — gentle warm orange.
+  static const Color low = Color(0xFFE09A6B);
+
+  /// Terrible — gentle rose.
+  static const Color terrible = Color(0xFFC97A8C);
 }

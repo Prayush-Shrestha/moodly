@@ -135,7 +135,7 @@ class _JournalEditorScreenState extends State<JournalEditorScreen> {
           child: AbsorbPointer(
             absorbing: _saving,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
               children: [
                 TextField(
                   controller: _titleController,
@@ -147,7 +147,7 @@ class _JournalEditorScreenState extends State<JournalEditorScreen> {
                   ),
                   style: theme.textTheme.titleLarge,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 InkWell(
                   onTap: _pickDate,
                   borderRadius: BorderRadius.circular(16),
@@ -160,7 +160,7 @@ class _JournalEditorScreenState extends State<JournalEditorScreen> {
                     child: Text(DateFormat('EEEE, MMMM d, y').format(_date)),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 const SectionHeader(title: 'Entry'),
                 TextField(
                   controller: _bodyController,
@@ -180,7 +180,7 @@ class _JournalEditorScreenState extends State<JournalEditorScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 SizedBox(
                   height: 52,
                   child: FilledButton.icon(

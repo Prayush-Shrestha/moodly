@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/mood.dart';
 import '../../services/stats_service.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/app_section.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_views.dart';
 import '../check_in/mood_check_in_screen.dart';
@@ -105,7 +106,7 @@ class InsightsScreenState extends State<InsightsScreen> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
                   children: [
-                    _buildPeriodSelector(),
+                    _buildPeriodSelector(theme),
                     const SizedBox(height: 16),
                     AnimatedSection(child: _buildSummaryRow(theme)),
                     const SizedBox(height: 14),
@@ -123,7 +124,7 @@ class InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
-  Widget _buildPeriodSelector() {
+  Widget _buildPeriodSelector(ThemeData theme) {
     return SegmentedButton<StatsPeriod>(
       segments: const [
         ButtonSegment(value: StatsPeriod.week, label: Text('This week')),
@@ -180,7 +181,7 @@ class InsightsScreenState extends State<InsightsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Mood distribution', style: theme.textTheme.titleMedium),
+          Text('Mood distribution', style: theme.textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(_periodLabel(), style: theme.textTheme.bodySmall),
           const SizedBox(height: 18),
@@ -286,7 +287,7 @@ class InsightsScreenState extends State<InsightsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Recent trend', style: theme.textTheme.titleMedium),
+          Text('Recent trend', style: theme.textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(
             'Last 7 days vs the 7 before · daily average mood',
@@ -333,7 +334,7 @@ class InsightsScreenState extends State<InsightsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Top emotions', style: theme.textTheme.titleMedium),
+          Text('Top emotions', style: theme.textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(_periodLabel(), style: theme.textTheme.bodySmall),
           const SizedBox(height: 14),
@@ -399,7 +400,7 @@ class InsightsScreenState extends State<InsightsScreen> {
                 color: theme.colorScheme.primary,
               ),
               const SizedBox(width: 8),
-              Text('Personal Reflection', style: theme.textTheme.titleMedium),
+              Text('Personal Reflection', style: theme.textTheme.titleLarge),
             ],
           ),
           const SizedBox(height: 8),
@@ -410,12 +411,7 @@ class InsightsScreenState extends State<InsightsScreen> {
           ),
           if (isFew) ...[
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
+            AppSection(
               child: Row(
                 children: [
                   Icon(
@@ -491,7 +487,7 @@ class _SummaryCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
-            style: theme.textTheme.headlineMedium?.copyWith(color: color),
+            style: theme.textTheme.headlineLarge?.copyWith(color: color),
           ),
           const SizedBox(height: 2),
           Text(sub, style: theme.textTheme.bodySmall),
@@ -517,7 +513,7 @@ class _TrendChip extends StatelessWidget {
       TrendDirection.improving => (
         Icons.trending_up_rounded,
         'Improving',
-        const Color(0xFF2E9E6B),
+        const Color(0xFF5DBFA0),
       ),
       TrendDirection.declining => (
         Icons.trending_down_rounded,

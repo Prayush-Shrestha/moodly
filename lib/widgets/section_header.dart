@@ -17,13 +17,15 @@ class SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         children: [
           Expanded(
             child: Text(
               title,
-              style: theme.textTheme.titleMedium,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),

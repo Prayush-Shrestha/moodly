@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/journal_entry.dart';
+import '../../widgets/app_card.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/status_views.dart';
 import 'journal_editor_screen.dart';
@@ -104,16 +105,25 @@ class JournalScreenState extends State<JournalScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Journal')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openEditor(),
-        icon: const Icon(Icons.edit_rounded),
-        label: const Text('New entry'),
+      floatingActionButton: SizedBox(
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+          child: SizedBox(
+            height: 52,
+            child: FilledButton.icon(
+              onPressed: () => _openEditor(),
+              icon: const Icon(Icons.edit_rounded, size: 20),
+              label: const Text('New entry'),
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
               child: TextField(
                 controller: _searchController,
                 onChanged: (value) {
@@ -164,9 +174,9 @@ class JournalScreenState extends State<JournalScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 110),
-        itemCount: _entries.length,
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
         separatorBuilder: (_, _) => const SizedBox(height: 10),
+        itemCount: _entries.length,
         itemBuilder: (context, index) {
           final entry = _entries[index];
           return Dismissible(
@@ -177,7 +187,7 @@ class JournalScreenState extends State<JournalScreen> {
               padding: const EdgeInsets.only(right: 20),
               decoration: BoxDecoration(
                 color: theme.colorScheme.error.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
                 Icons.delete_outline_rounded,
@@ -188,52 +198,47 @@ class JournalScreenState extends State<JournalScreen> {
               await _delete(entry);
               return false; // handled manually so the list can reload
             },
-            child: Card(
-              elevation: 0,
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () => _openDetail(entry),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              entry.displayTitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium,
-                            ),
+            child: AppCard(
+              onTap: () => _openDetail(entry),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.displayTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium,
                           ),
-                          IconButton(
-                            tooltip: 'Delete entry',
-                            visualDensity: VisualDensity.compact,
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              size: 20,
-                            ),
-                            onPressed: () => _delete(entry),
+                        ),
+                        IconButton(
+                          tooltip: 'Delete entry',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 20,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        Formatters.mediumDate(entry.date),
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        entry.preview,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+                          onPressed: () => _delete(entry),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      Formatters.mediumDate(entry.date),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      entry.preview,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -320,7 +325,7 @@ class JournalDetailScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
-            Text(entry.displayTitle, style: theme.textTheme.headlineMedium),
+            Text(entry.displayTitle, style: theme.textTheme.headlineLarge),
             const SizedBox(height: 6),
             Text(
               Formatters.fullDate(entry.date),
@@ -336,7 +341,7 @@ class JournalDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               entry.body,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.7),
             ),
           ],
         ),
